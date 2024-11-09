@@ -4,7 +4,8 @@ import { getAllCurrencies, getCurrencyById, upsertCurrency } from "./db.ts";
 const router = new Router();
 router
   .get("/", async (context) => {
-    context.response.body = await getAllCurrencies();
+    const currencies = await getAllCurrencies();
+    context.response.body = currencies.length ? currencies : "No currency rates available yet; Please POST / to set a currency rate."
   })
   .get("/:id", async (context) => {
     context.response.body = await getCurrencyById(context?.params?.id);
@@ -13,7 +14,7 @@ router
     const { rate } = await getCurrencyById(context?.params?.id);
     context.response.body = parseFloat(context?.params?.amt) / rate;
   })
-  .post("/:id", async (context) => {
+  .post("/", async (context) => {
     const body = context.request.body;
     const currency = await body.json();
     await upsertCurrency(currency);
